@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Python + Playwright Web Automation Visual Notes</title>
+<style>
+:root{--bg:#f3f6fb;--card:#fff;--ink:#17243a;--muted:#63738b;--line:#dce4ef;--blue:#2457d6;--navy:#12213d;--code:#101827}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 "Segoe UI",Arial,sans-serif}
+header{padding:42px max(22px,calc((100% - 1200px)/2));background:linear-gradient(120deg,#101d38,#1d5591,#087e88);color:white}
+header small{letter-spacing:.15em;text-transform:uppercase;color:#b9d9ff;font-weight:bold}h1{font-size:clamp(30px,4vw,46px);line-height:1.1;margin:12px 0}header p{max-width:850px;color:#e0edff;margin:0}
+.tags{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}.tags span{border:1px solid #ffffff55;border-radius:30px;padding:5px 11px;font-size:12px}
+.layout{max-width:1250px;margin:25px auto;padding:0 18px;display:grid;grid-template-columns:235px 1fr;gap:20px}
+nav{position:sticky;top:15px;align-self:start;max-height:calc(100vh - 30px);overflow:auto;background:white;border:1px solid var(--line);border-radius:14px;padding:14px}
+nav b{display:block;margin:4px 8px 10px}nav a{display:block;text-decoration:none;color:var(--muted);font-size:13px;padding:6px 8px;border-radius:7px}nav a:hover{background:#edf3ff;color:var(--blue)}
+main{min-width:0}.tools{display:flex;gap:8px;margin-bottom:15px}.tools input{flex:1;min-width:120px;padding:11px;border:1px solid var(--line);border-radius:9px;font:inherit}.tools button,.copy{border:0;border-radius:8px;background:#e7efff;color:#214eb8;padding:8px 12px;font-weight:700;cursor:pointer}
+section{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px;box-shadow:0 6px 24px #17345b0a;scroll-margin-top:15px}
+h2{font-size:20px;margin:0 0 4px}.n{font-size:11px;color:var(--blue);background:#eaf0ff;border-radius:20px;padding:4px 8px;vertical-align:3px;margin-right:7px}.desc{color:var(--muted);margin:0 0 13px;font-size:14px}
+table{width:100%;border-collapse:collapse;font-size:13px}th,td{text-align:left;padding:8px 9px;border-bottom:1px solid var(--line);vertical-align:top}th{background:#f0f4fa;color:#42516a}tr:last-child td{border:0}
+code{font-family:Consolas,monospace;background:#edf2f8;color:#183d70;border-radius:4px;padding:2px 5px;overflow-wrap:anywhere}
+pre{position:relative;background:var(--code);color:#e6edf8;border-radius:10px;padding:16px;overflow:auto;font:12.5px/1.55 Consolas,monospace;margin:9px 0 0}pre code{background:none;color:inherit;padding:0}.copy{position:absolute;right:8px;top:8px;font-size:11px;padding:5px 8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.tile{border:1px solid var(--line);border-radius:10px;padding:12px;background:#fcfdff}.tile h3{font-size:14px;margin:0;color:#24416d}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:13px 0}.flow span{background:#edf3ff;border:1px solid #d8e4fb;border-radius:8px;padding:7px 10px;font-size:12px;font-weight:bold}.flow b{color:#91a0b4}
+.note{background:#effafb;border-left:4px solid #0e8290;border-radius:6px;padding:10px 13px;font-size:13px;margin-top:12px}.warn{background:#fff8e9;border-color:#d18b18;color:#684b18}
+.hidden{display:none!important}footer{max-width:1200px;margin:auto;padding:0 18px 30px;color:var(--muted);font-size:12px}
+@media(max-width:820px){.layout{grid-template-columns:1fr}nav{position:static;max-height:none;display:grid;grid-template-columns:repeat(2,1fr)}nav b{grid-column:1/-1}section{padding:15px}}
+@media print{body{background:white}nav,.tools,.copy{display:none!important}.layout{display:block;max-width:none}section{box-shadow:none;break-inside:avoid}header{print-color-adjust:exact}}
+</style></head>
+<body>
+<header><small>Python automation field guide</small><h1>Playwright Web Automation</h1><p>A visual, searchable reference for the main browser actions and their Python syntax — from launching a browser to building a pytest automation framework.</p><div class="tags"><span>Python</span><span>Playwright Sync API</span><span>Copy-ready snippets</span><span>Beginner → Framework</span></div></header>
+<div class="layout">
+<nav><b>Quick navigation</b>
+<a href="#map">00 · Big picture</a><a href="#setup">01 · Setup & browser</a><a href="#nav">02 · Navigation</a><a href="#locators">03 · Locators</a><a href="#actions">04 · Element actions</a><a href="#input">05 · Keyboard & mouse</a><a href="#read">06 · Read elements</a><a href="#wait">07 · Waits</a><a href="#tabs">08 · Tabs & popups</a><a href="#frames">09 · Frames</a><a href="#dialogs">10 · Dialogs</a><a href="#files">11 · Files</a><a href="#screens">12 · Screenshots/PDF</a><a href="#storage">13 · Cookies/storage</a><a href="#assert">14 · Assertions</a><a href="#js">15 · JavaScript</a><a href="#network">16 · Network/API</a><a href="#pytest">17 · Pytest</a><a href="#pom">18 · POM</a><a href="#debug">19 · Debugging</a><a href="#example">20 · Full example</a>
+</nav>
+<main>
+<div class="tools"><input id="q" placeholder="Search: click, upload, iframe, expect…" type="search"><button onclick="resetSearch()">Clear</button><button onclick="window.print()">Print / Save PDF</button></div>
+<section id="map" data-key="mind map overview flow"><h2><span class="n">00</span>Web automation — big picture</h2><p class="desc">Most UI automation follows this lifecycle.</p><div class="flow"><span>Python script</span><b>→</b><span>Browser</span><b>→</b><span>Context</span><b>→</b><span>Page / Tab</span><b>→</b><span>Locators</span><b>→</b><span>Actions</span><b>→</b><span>Assertions</span><b>→</b><span>Report</span></div><div class="grid"><div class="tile"><h3>Browser</h3>Chromium · Firefox · WebKit</div><div class="tile"><h3>Find elements</h3>Role · Label · Text · CSS · XPath</div><div class="tile"><h3>Interact</h3>Click · Fill · Select · Hover · Upload</div><div class="tile"><h3>Control timing</h3>Auto-wait · Wait for URL · Wait for response</div><div class="tile"><h3>Validate</h3>Visible · Text · URL · Value · Count</div><div class="tile"><h3>Build framework</h3>Pytest · Fixtures · POM · Trace · Reports</div></div></section>
+
+<section id="setup" data-key="install setup browser chromium firefox webkit launch context page close headless"><h2><span class="n">01</span>Setup & browser management</h2><p class="desc">A browser context is an isolated session; a page represents a tab.</p><pre><button class="copy" onclick="copy(this)">Copy</button><code>pip install playwright
+playwright install
+pip install pytest pytest-playwright   # optional pytest integration
+
+from playwright.sync_api import sync_playwright, expect
+
+with sync_playwright() as p:
+    browser = p.chromium.launch(headless=False)
+    context = browser.new_context()
+    page = context.new_page()
+    # ... automation steps ...
+    browser.close()</code></pre>
+<table><tr><th>Action</th><th>Syntax</th></tr><tr><td>Launch Chromium / Firefox / WebKit</td><td><code>p.chromium.launch()</code> / <code>p.firefox.launch()</code> / <code>p.webkit.launch()</code></td></tr><tr><td>Headed browser</td><td><code>launch(headless=False)</code></td></tr><tr><td>New context / page</td><td><code>browser.new_context()</code> / <code>context.new_page()</code></td></tr><tr><td>New page shortcut</td><td><code>browser.new_page()</code></td></tr><tr><td>List tabs</td><td><code>context.pages</code></td></tr><tr><td>Close page / context / browser</td><td><code>page.close()</code> / <code>context.close()</code> / <code>browser.close()</code></td></tr></table></section>
+
+<section id="nav" data-key="navigation goto reload back forward url title load state"><h2><span class="n">02</span>Navigation</h2><table><tr><th>Action</th><th>Syntax</th></tr><tr><td>Open URL</td><td><code>page.goto("https://example.com")</code></td></tr><tr><td>Refresh</td><td><code>page.reload()</code></td></tr><tr><td>Back / forward</td><td><code>page.go_back()</code> / <code>page.go_forward()</code></td></tr><tr><td>Current URL / title</td><td><code>page.url</code> / <code>page.title()</code></td></tr><tr><td>Wait for load</td><td><code>page.wait_for_load_state("load")</code></td></tr><tr><td>Wait for DOM</td><td><code>page.wait_for_load_state("domcontentloaded")</code></td></tr><tr><td>Wait for URL</td><td><code>page.wait_for_url("**/dashboard")</code></td></tr></table></section>
+
+<section id="locators" data-key="locator selectors id class css xpath text role label placeholder test id first last nth filter chain"><h2><span class="n">03</span>Locators — identify page elements</h2><p class="desc">Prefer accessible, user-facing locators when possible; use CSS/XPath where appropriate.</p><table><tr><th>Type</th><th>Syntax</th></tr><tr><td>ID / class</td><td><code>page.locator("#username")</code> / <code>page.locator(".login-btn")</code></td></tr><tr><td>CSS attribute</td><td><code>page.locator("input[name='email']")</code></td></tr><tr><td>XPath</td><td><code>page.locator("//input[@id='username']")</code></td></tr><tr><td>Text</td><td><code>page.get_by_text("Login")</code></td></tr><tr><td>Role</td><td><code>page.get_by_role("button", name="Login")</code></td></tr><tr><td>Label / placeholder</td><td><code>page.get_by_label("Email")</code> / <code>page.get_by_placeholder("Enter email")</code></td></tr><tr><td>Test ID</td><td><code>page.get_by_test_id("login-button")</code></td></tr></table><pre><button class="copy" onclick="copy(this)">Copy</button><code>items = page.locator(".item")
+items.first                 # first match
+items.last                  # last match
+items.nth(2)                # third match (zero-based)
+items.count()               # count matches
+items.filter(has_text="Apple")
+page.locator("form").locator("input")  # chained locator</code></pre></section>
+
+<section id="actions" data-key="click double click right click fill type clear check uncheck select dropdown hover focus press drag drop scroll"><h2><span class="n">04</span>Element interactions</h2><p class="desc">The everyday actions used in most browser scripts.</p><table><tr><th>Action</th><th>Syntax</th></tr><tr><td>Click / double-click</td><td><code>locator.click()</code> / <code>locator.dblclick()</code></td></tr><tr><td>Right-click</td><td><code>locator.click(button="right")</code></td></tr><tr><td>Fill / type sequentially</td><td><code>locator.fill("admin")</code> / <code>locator.press_sequentially("admin")</code></td></tr><tr><td>Clear input</td><td><code>locator.clear()</code></td></tr><tr><td>Checkbox</td><td><code>locator.check()</code> / <code>locator.uncheck()</code></td></tr><tr><td>Dropdown</td><td><code>locator.select_option("India")</code></td></tr><tr><td>Hover / focus</td><td><code>locator.hover()</code> / <code>locator.focus()</code></td></tr><tr><td>Press key</td><td><code>locator.press("Enter")</code></td></tr><tr><td>Drag and drop</td><td><code>source.drag_to(target)</code></td></tr><tr><td>Scroll element into view</td><td><code>locator.scroll_into_view_if_needed()</code></td></tr></table></section>
+
+<section id="input" data-key="keyboard mouse press control tab type insert text move click wheel"><h2><span class="n">05</span>Keyboard & mouse</h2><div class="grid"><div class="tile"><h3>Keyboard</h3><pre><button class="copy" onclick="copy(this)">Copy</button><code>page.keyboard.press("Enter")
+page.keyboard.press("Control+A")
+page.keyboard.press("Tab")
+page.keyboard.type("Hello World")
+page.keyboard.insert_text("Hello")</code></pre></div><div class="tile"><h3>Mouse</h3><pre><button class="copy" onclick="copy(this)">Copy</button><code>page.mouse.move(300, 200)
+page.mouse.click(300, 200)
+page.mouse.dblclick(300, 200)
+page.mouse.down()
+page.mouse.up()
+page.mouse.wheel(0, 500)</code></pre></div></div><div class="note warn">Prefer locator actions over screen coordinates because coordinates can break when layout changes.</div></section>
+
+<section id="read" data-key="get text content attribute input value visible enabled disabled checked count bounding box"><h2><span class="n">06</span>Read element information</h2><table><tr><th>Information</th><th>Syntax</th></tr><tr><td>Visible text / text content</td><td><code>locator.inner_text()</code> / <code>locator.text_content()</code></td></tr><tr><td>Attribute</td><td><code>locator.get_attribute("href")</code></td></tr><tr><td>Input value</td><td><code>locator.input_value()</code></td></tr><tr><td>Visible / enabled / disabled</td><td><code>locator.is_visible()</code> / <code>locator.is_enabled()</code> / <code>locator.is_disabled()</code></td></tr><tr><td>Checked?</td><td><code>locator.is_checked()</code></td></tr><tr><td>Count / bounding box</td><td><code>locator.count()</code> / <code>locator.bounding_box()</code></td></tr></table></section>
+
+<section id="wait" data-key="wait synchronization auto waiting visible hidden url load response timeout sleep"><h2><span class="n">07</span>Waits & synchronization</h2><p class="desc">Playwright auto-waits for actionability. Use explicit waits for a particular state or event.</p><pre><button class="copy" onclick="copy(this)">Copy</button><code>page.locator("#username").wait_for(state="visible")
+page.locator("#loader").wait_for(state="hidden")
+page.wait_for_url("**/dashboard")
+page.wait_for_load_state("domcontentloaded")
+
+with page.expect_response("**/api/users") as info:
+    page.get_by_role("button", name="Load users").click()
+response = info.value
+print(response.status)</code></pre><div class="note warn">Avoid fixed <code>time.sleep()</code> as your normal wait strategy. Use auto-waiting, web-first assertions or event-based waits.</div></section>
+
+<section id="tabs" data-key="tabs windows popup expect page new page context pages switch close"><h2><span class="n">08</span>Tabs, windows & popups</h2><pre><button class="copy" onclick="copy(this)">Copy</button><code>new_tab = context.new_page()
+
+# Capture a tab opened by a click
+with context.expect_page() as info:
+    page.get_by_role("link", name="Open report").click()
+popup = info.value
+
+all_tabs = context.pages
+second_tab = context.pages[1]
+second_tab.close()</code></pre></section>
+
+<section id="frames" data-key="iframe frame locator frame name"><h2><span class="n">09</span>Frames & iframes</h2><pre><button class="copy" onclick="copy(this)">Copy</button><code>payment = page.frame_locator("#payment-frame")
+payment.locator("#card-number").fill("4111111111111111")
+
+frame = page.frame(name="payment")
+if frame:
+    frame.locator("#confirm").click()</code></pre></section>
+
+<section id="dialogs" data-key="alert confirm prompt dialog accept dismiss message"><h2><span class="n">10</span>Alerts & dialogs</h2><pre><button class="copy" onclick="copy(this)">Copy</button><code># Register before triggering the dialog
+page.on("dialog", lambda dialog: dialog.accept())
+
+# Or dismiss it
+page.on("dialog", lambda dialog: dialog.dismiss())
+
+# Read message then accept
+def handle_dialog(dialog):
+    print(dialog.message)
+    dialog.accept()
+page.on("dialog", handle_dialog)</code></pre></section>
+
+<section id="files" data-key="upload file set input files download expect download save as"><h2><span class="n">11</span>File upload & download</h2><div class="grid"><div class="tile"><h3>Upload</h3><pre><button class="copy" onclick="copy(this)">Copy</button><code>page.locator(
+    "input[type='file']"
+).set_input_files(
+    r"C:\\Users\\User\\Documents\\sample.pdf"
+)</code></pre></div><div class="tile"><h3>Download</h3><pre><button class="copy" onclick="copy(this)">Copy</button><code>with page.expect_download() as info:
+    page.get_by_role("button", name="Download").click()
+download = info.value
+download.save_as(
+    r"C:\\Users\\User\\Downloads\\sample.pdf"
+)</code></pre></div></div></section>
+
+<section id="screens" data-key="screenshot full page element pdf"><h2><span class="n">12</span>Screenshots & PDF</h2><pre><button class="copy" onclick="copy(this)">Copy</button><code>page.screenshot(path="full_page.png", full_page=True)
+page.locator("#dashboard").screenshot(path="dashboard.png")
+page.pdf(path="report.pdf")  # Chromium</code></pre></section>
+
+<section id="storage" data-key="cookies local storage session storage add clear get set"><h2><span class="n">13</span>Cookies & browser storage</h2><pre><button class="copy" onclick="copy(this)">Copy</button><code>cookies = context.cookies()
+
+context.add_cookies([{
+    "name": "session", "value": "test-value",
+    "domain": "example.com", "path": "/"
+}])
+context.clear_cookies()
+
+value = page.evaluate("() => localStorage.getItem('token')")
+page.evaluate("() => localStorage.setItem('token', 'test-value')")
+session_value = page.evaluate("() => sessionStorage.getItem('token')")</code></pre><div class="note warn">Use only authorized test accounts. Never commit real passwords, cookies or session tokens to source control.</div></section>
+
+<section id="assert" data-key="assert expect title url visible hidden text value enabled checked count validation"><h2><span class="n">14</span>Assertions & validations</h2><p class="desc">Web-first assertions retry until the expected condition is met or times out.</p><pre><button class="copy" onclick="copy(this)">Copy</button><code>from playwright.sync_api import expect
+
+expect(page).to_have_title("Dashboard")
+expect(page).to_have_url("https://example.com/dashboard")
+expect(page.locator("#welcome")).to_be_visible()
+expect(page.locator("#loader")).to_be_hidden()
+expect(page.locator("#message")).to_have_text("Login successful")
+expect(page.locator("#message")).to_contain_text("successful")
+expect(page.locator("#username")).to_have_value("admin")
+expect(page.locator("#submit")).to_be_enabled()
+expect(page.locator("#agree")).to_be_checked()
+expect(page.locator(".row")).to_have_count(5)</code></pre></section>
+
+<section id="js" data-key="javascript evaluate scroll window document click"><h2><span class="n">15</span>Execute JavaScript in page</h2><pre><button class="copy" onclick="copy(this)">Copy</button><code>result = page.evaluate("() => 10 + 20")
+url = page.evaluate("() => window.location.href")
+page.evaluate("() => window.scrollTo(0, document.body.scrollHeight)")
+
+# DOM click — prefer locator.click() for ordinary automation
+page.locator("#submit").evaluate("(element) => element.click()")</code></pre></section>
+
+<section id="network" data-key="network request response route intercept mock api get post json status"><h2><span class="n">16</span>Network monitoring, interception & API</h2><pre><button class="copy" onclick="copy(this)">Copy</button><code>page.on("request", lambda req: print(req.method, req.url))
+page.on("response", lambda res: print(res.status, res.url))
+
+# Mock an API response
+page.route("**/api/users", lambda route: route.fulfill(
+    status=200, json={"name": "Test User"}
+))
+
+# Send an API request
+response = page.request.get("https://example.com/api/users")
+print(response.status)
+print(response.json())</code></pre></section>
+
+<section id="pytest" data-key="pytest fixture page test run headed test file"><h2><span class="n">17</span>Pytest integration</h2><p class="desc">Install <code>pytest-playwright</code> to use fixtures such as <code>page</code>.</p><pre><button class="copy" onclick="copy(this)">Copy</button><code>pip install pytest pytest-playwright
+playwright install
+
+# test_login.py
+from playwright.sync_api import Page, expect
+
+def test_login(page: Page):
+    page.goto("https://example.com/login")
+    page.get_by_label("Username").fill("test-user")
+    page.get_by_label("Password").fill("test-password")
+    page.get_by_role("button", name="Login").click()
+    expect(page.get_by_text("Welcome")).to_be_visible()
+
+# Run
+pytest
+pytest --headed
+pytest test_login.py</code></pre></section>
+
+<section id="pom" data-key="page object model pom class constructor reusable locators framework"><h2><span class="n">18</span>Page Object Model (POM)</h2><p class="desc">Keep page locators and page actions in page classes; keep test validation in tests.</p><pre><button class="copy" onclick="copy(this)">Copy</button><code># pages/login_page.py
+class LoginPage:
+    def __init__(self, page):
+        self.page = page
+        self.username = page.get_by_label("Username")
+        self.password = page.get_by_label("Password")
+        self.login_button = page.get_by_role("button", name="Login")
+
+    def open(self):
+        self.page.goto("https://example.com/login")
+
+    def login(self, username, password):
+        self.username.fill(username)
+        self.password.fill(password)
+        self.login_button.click()
+
+# test_login.py
+from playwright.sync_api import expect
+from pages.login_page import LoginPage
+
+def test_login(page):
+    login = LoginPage(page)
+    login.open()
+    login.login("test-user", "test-password")
+    expect(page.get_by_text("Welcome")).to_be_visible()</code></pre></section>
+
+<section id="debug" data-key="debugging inspector pause tracing trace screenshot video report"><h2><span class="n">19</span>Debugging, tracing & reports</h2><pre><button class="copy" onclick="copy(this)">Copy</button><code># Open Playwright Inspector
+page.pause()
+
+# Start tracing before test actions
+context.tracing.start(screenshots=True, snapshots=True, sources=True)
+
+# ... perform actions ...
+
+# Save trace
+context.tracing.stop(path="trace.zip")
+
+# Open trace
+playwright show-trace trace.zip
+
+# pytest-playwright options
+pytest --tracing on
+pytest --screenshot only-on-failure
+pytest --video retain-on-failure</code></pre><div class="note">Pytest trace, screenshot and video options depend on the pytest-playwright setup and configuration.</div></section>
+
+<section id="example" data-key="complete example end to end login browser script"><h2><span class="n">20</span>Complete login automation example</h2><p class="desc">A single script combining browser setup, navigation, locators, actions and validation.</p><pre><button class="copy" onclick="copy(this)">Copy</button><code>from playwright.sync_api import sync_playwright, expect
+
+with sync_playwright() as p:
+    browser = p.chromium.launch(headless=False)
+    context = browser.new_context()
+    page = context.new_page()
+
+    page.goto("https://example.com/login")
+    page.get_by_label("Username").fill("test-user")
+    page.get_by_label("Password").fill("test-password")
+    page.get_by_role("button", name="Login").click()
+
+    expect(page.get_by_text("Welcome")).to_be_visible()
+    print("Page title:", page.title())
+
+    browser.close()</code></pre></section>
+</main></div>
+<footer>Learning path: browser setup → locators → interactions → waits → assertions → tabs/frames/files → network → pytest → POM → debugging. Use automation only on websites and systems you are authorized to test.</footer>
+<script>
+function copy(button){const text=button.parentElement.querySelector("code").innerText;navigator.clipboard.writeText(text).then(()=>{button.textContent="Copied";setTimeout(()=>button.textContent="Copy",1000)}).catch(()=>button.textContent="Select code")}
+const input=document.getElementById("q");input.addEventListener("input",()=>{const q=input.value.toLowerCase().trim();document.querySelectorAll("main section").forEach(s=>s.classList.toggle("hidden",!!q&&!(s.innerText+" "+s.dataset.key).toLowerCase().includes(q)))});
+function resetSearch(){input.value="";input.dispatchEvent(new Event("input"))}
+</script></body></html>
